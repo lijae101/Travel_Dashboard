@@ -6,7 +6,7 @@ import { appwriteConfig } from "./client";
 export const loginWithGoogle = async () => {
     try {
 
-        account.createOAuth2Session(OAuthProvider.Google)
+        account.createOAuth2Session(OAuthProvider.Google, "http://localhost:5173", "http://localhost:5173/sign-in");
 
     } catch (error) {
         console.log(error);
@@ -27,23 +27,24 @@ export const logoutUser = async () => {
 
 export const getUser = async () => {
     try {
-
         const user = await account.get();
-        if (!user) return redirect('/sign-in');
+        if (!user) return redirect("/sign-in");
 
         const { documents } = await database.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.userCollectionId,
             [
-                Query.equal('accountId', user.$id),
-                Query.select(['name', 'email', 'imageUrl', 'joinedAt', 'accountId'])
+                Query.equal("accountId", user.$id),
+                Query.select(["name", "email", "imageUrl", "joinedAt", "accountId"]),
             ]
         );
 
+        return documents.length > 0 ? documents[0] : redirect("/sign-in");
     } catch (error) {
-        console.log(error);
+        console.error("Error fetching user:", error);
+        return null;
     }
-}
+};
 
 export const getGooglePicture = async () => {
     try {
@@ -126,29 +127,38 @@ export const storeUserData = async () => {
     }
 }
 
-export const getExistingUser = async () => {
+export const getExistingUser = async (id: string) => {
     try {
-
-        const user = await account.get();
-        if (!user) return null;
-
-        //Check if user already exists in db
-        const { documents } = await database.listDocuments(
+        const { documents, total } = await database.listDocuments(
             appwriteConfig.databaseId,
             appwriteConfig.userCollectionId,
-            [
-                Query.equal('accountId', user.$id),
-            ]
+            [Query.equal("accountId", id)]
+        );
+        return total > 0 ? documents[0] : null;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return null;
+    }
+};
+
+export const getAllUsers = async (limit: number, offset: number) => {
+    try {
+
+        const { documents: users, total } = await database.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            [Query.limit(limit), Query.offset(offset)]
         );
 
-        if (documents.length > 0) {
-            //User already exists
-            return documents[0];
+        if (total === 0) {
+            return { users: [], total: 0 };
         }
 
-        return null;
+        return { users, total };
+
 
     } catch (error) {
-        console.log(error);
+        console.log("Error fetching all users:", error);
+        return { users: [], total: 0 };
     }
 }

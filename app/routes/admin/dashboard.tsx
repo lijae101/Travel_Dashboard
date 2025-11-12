@@ -1,16 +1,22 @@
 import { Header, StatsCard, TripCard } from 'components'
 
 import React from 'react'
-import { dasboardStats, user, allTrips } from '~/constants';
+import { getUser } from '~/appwrite/auth';
+import { dasboardStats, users, allTrips } from '~/constants';
+import type { Route } from './+types/dashboard';
 
 const { totalUsers, usersJoined, totalTrips, tripsCreated, userRole } = dasboardStats;
 
-const Dashboard = () => {
+export const clientLoader = async () => await getUser();
+
+
+const Dashboard = ({ loaderData }: Route.ComponentProps) => {
+    const user = (loaderData ?? null) as User | null;
 
     return (
         <main className='dashboard wrapper'>
             <Header
-                title={`Welcome, ${user?.name ?? 'Guest'} 👋`}
+                title={`Welcome, ${user?.name} 👋`}
                 description="Track activity, trends and popular destinations in real time!" />
 
 
@@ -54,7 +60,7 @@ const Dashboard = () => {
             </section>
 
 
-            
+
 
         </main>
     )
