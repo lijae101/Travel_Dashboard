@@ -6,7 +6,12 @@ import { appwriteConfig } from "./client";
 export const loginWithGoogle = async () => {
     try {
 
-        account.createOAuth2Session(OAuthProvider.Google, "http://localhost:5173", "http://localhost:5173/sign-in");
+        account.createOAuth2Session(
+            OAuthProvider.Google,
+            "https://travel-dashboard-dusky.vercel.app/",            // success redirect
+            "https://travel-dashboard-dusky.vercel.app/sign-in"      // failure redirect
+        );
+
 
     } catch (error) {
         console.log(error);
