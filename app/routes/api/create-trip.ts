@@ -72,6 +72,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
             .generateContent([prompt])
 
+
+        const rawText = textResult.response.text();
+        console.log("RAW GEMINI OUTPUT:", rawText);
+
         const trip = parseMarkdownToJson(textResult.response.text());
 
         const imageResponse = await fetch(
