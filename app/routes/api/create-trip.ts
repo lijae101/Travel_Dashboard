@@ -68,7 +68,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     ]
     }`;
 
-        const textResult = await genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+        const textResult = await genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+
             .generateContent([prompt])
 
         const trip = parseMarkdownToJson(textResult.response.text());
