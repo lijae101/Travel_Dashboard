@@ -20,28 +20,38 @@ interface Country {
 
 export const loader = async (): Promise<Country[]> => {
     const response = await fetch(
-        'https://restcountries.com/v5.1/all?fields=name,latlng,flags,maps'
+        'https://api.restcountries.com/countries/v5?limit=100',
+        {
+            headers: {
+                Authorization: `Bearer ${process.env.REST_COUNTRIES_API_KEY}`,
+            },
+        }
     );
 
     if (!response.ok) {
+        const error = await response.text();
+        console.error("Countries API error:", error);
         throw new Error(`Failed to fetch countries: ${response.status}`);
     }
 
-    const data = await response.json();
+    const result = await response.json();
 
-    if (!Array.isArray(data)) {
+    const countries = result.data.objects;
+
+    if (!Array.isArray(countries)) {
         throw new Error('Expected an array of countries');
     }
 
-    return data.map((country: any) => ({
-        flag: country.flags?.png ?? '',
-        name: country.name?.common ?? 'Unknown',
-        coordinates: country.latlng ?? [],
-        value: country.name?.common ?? 'Unknown',
-        openStreetMap: country.maps?.openStreetMaps ?? '',
+    return countries.map((country: any) => ({
+        flag: country.flag?.url_png ?? '',
+        name: country.names?.common ?? 'Unknown',
+        coordinates: [
+            country.coordinates?.lat ?? 0,
+            country.coordinates?.lng ?? 0
+        ],
+        value: country.names?.common ?? 'Unknown',
     }));
 };
-
 const CreateTrip = ({ loaderData }: Route.ComponentProps) => {
     const countries = loaderData as Country[];
     const navigate = useNavigate();
