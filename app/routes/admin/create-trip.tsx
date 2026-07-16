@@ -20,7 +20,7 @@ interface Country {
 
 export const loader = async (): Promise<Country[]> => {
     const response = await fetch(
-        'https://restcountries.com/v3.1/all?fields=name,latlng,flags,maps'
+        'https://restcountries.com/v5.1/all?fields=name,latlng,flags,maps'
     );
 
     if (!response.ok) {
